@@ -25,12 +25,24 @@ void createStudent(char* fname, char* lname, int age, int id)
   // student to the student array
   //  - the firstName and lastName strings should be dynamically created
   //    based on the size of the fname and lname args
+  Student* st = (Student*) malloc (sizeof(Student));
+  st->firstName = (char*) malloc ((strlen(fname) + 1) * sizeof(char));
+  strcpy(st->firstName, fname);
+  st->lastName = (char*) malloc ((strlen(fname) + 1) * sizeof(char));
+  strcpy(st->lastName, lname);
+  st->age = age;
+  st->id = id;
+  students[numStudents] = st;
+  numStudents++;
 }
 
 
 void deleteStudent(Student* student)
 {
   // free the memory associated with a student including the strings
+  free(student->firstName);
+  free(student->lastName);
+  free(student);
 }
 
 
@@ -38,8 +50,12 @@ void deleteStudents()
 {
   // iterate over the students array deleting every student and setting te pointer
   // values to 0 and adjusting the numStudents to 0
+  for (int i = 0; i < numStudents; i++) {
+    deleteStudent(students[i]);
+    students[i] = 0;
 }
-
+numStudents = 0;
+}
 
 void saveStudents(int key)
 {
@@ -51,6 +67,19 @@ void saveStudents(int key)
   //       katy jones 18 4532
   // the best way to do this is to convert the student data to a string using sprintf and then
   // (optionally) encrypt the whole string before writing it to disk (see cdemo/fileio3.c)
+  FILE * fp;
+  fp = fopen("studentdata.txt", "w");
+  char buff [256];
+  for (int i = 0; i < numStudents; i++) {
+    Student* st = students[i];
+    sprintf(buff, "%s %s %d %ld", st->firstName, st->lastName, st->age, st->id);
+
+    if (key != 0) {
+      caesarEncrypt(buff, key);
+    }
+    fprintf(fp, "%s\n", buff);
+  }
+  fclose(fp);
 }
 
 
@@ -61,8 +90,38 @@ void loadStudents(int key)
   //  - when loading it is best to load data into four strings and then (optionally) decrypt the
   //    strings
   //  - call createStudent to correctly create the students
-}
+  FILE * fp;
+  fp = fopen("studentdata.txt", "re");
+  char b1[256];
+  char b2[256];
+  char b3[256];
+  char b4[256];
 
+  if (numStudents > 0) {
+    deleteStudents();
+    fopen("studentdata.txt", "re");
+  }
+
+  while (1) {
+    int match = fscanf(fp, "%s %s %s %s", b1, b2, b3, b4);
+    if (match != 4) {
+      return;
+    }
+
+    if (key != 0) {
+      caesarDecrypt(b1, key);
+      caesarDecrypt(b2, key);
+      caesarDecrypt(b3, key);
+      caesarDecrypt(b4, key);
+    }
+    int age;
+    long id;
+    sscanf(b3, "%d", &age);
+    sscanf(b4, "%ld", &id);
+
+    createStudent(b1, b2, age, id);
+  }
+}
 
 void printStudent(Student* student)
 {

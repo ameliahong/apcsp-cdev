@@ -43,4 +43,41 @@ int main(int argc, char* argv[])
     double area = areaOfCircle(start);
   printf("the area of the circle is %f\n", areaOfCircle(start));
   }
+
+
+  // (activity 2 user input) extended program, input two numbers
+  // controlling range of radius
+
+  int firstInteger;
+  int secondInteger;
+  char input[256];
+
+  printf("Enter an integer: ");
+  fgets(input, 256, stdin); 
+  if (sscanf(input, "%d", &firstInteger) != 1) {
+  printf("Enter an INTEGER\n");
+  return 0;
+  }
+  printf("Enter a second integer: ");
+  fgets(input, 256, stdin);
+  if (sscanf(input, "%d", &secondInteger) != 1) {
+  printf("Enter an INTEGER\n");
+  return 0;
+  }
+
+
+  while (secondInteger < firstInteger) {
+  if (secondInteger < firstInteger) {
+    printf("Enter an integer greater than %d: ", firstInteger);
+    fgets(input, 256, stdin);
+    sscanf(input, "%d", &secondInteger);
+  }
+  }
+
+  int num;
+  printf("All radiuses within the range %d to %d: ", firstInteger, secondInteger);
+  for (num = firstInteger; num <= secondInteger; num++) {
+    printf("\narea of radius %d = %f\n", num, areaOfCircle(num));
+  }
+   return 0;
 }
